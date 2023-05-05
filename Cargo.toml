@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+    "outbox",
+    "kafka_sink",
+    "savepoint",
+    "service"
+]
