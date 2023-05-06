@@ -24,7 +24,7 @@ impl ChaparService {
     }
 
     pub async fn run(&self) -> Result<(), String> {
-        let mut ticker = interval(Duration::from_secs(2));
+        let mut ticker = interval(Duration::from_millis(500));
 
         loop {
             ticker.tick().await;
@@ -41,9 +41,13 @@ impl ChaparService {
 
         let events = self
             .outbox_svc
-            .get_events_from_id(last_id, Some(5))
+            .get_events_from_id(last_id, Some(100000))
             .await
             .map_err(|e| e.to_string())?;
+
+        if events.len() == 0 {
+            return Ok(());
+        }
 
         let kafka_events = events
             .iter()
