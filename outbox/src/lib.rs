@@ -45,7 +45,10 @@ impl OutboxService {
                 .bind(limit.unwrap_or_else(|| 100))
                 .fetch_all(conn.as_mut())
                 .await
-                .map_err(|_| Error::ConnectionError)?;
+                .map_err(|e| {
+                    println!("{}", e);
+                    Error::ConnectionError
+                })?;
 
         Ok(events)
     }
