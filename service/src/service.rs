@@ -41,7 +41,7 @@ impl ChaparService {
 
         let events = self
             .outbox_svc
-            .get_events_from_id(last_id, Some(100000))
+            .get_events_from_id(last_id, Some(5000))
             .await
             .map_err(|e| e.to_string())?;
 

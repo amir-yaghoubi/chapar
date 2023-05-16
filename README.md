@@ -3,9 +3,9 @@
 
 ## TODO
 
-- [ ]  Savepoint Service
-  - [ ]  Store data into json file
-  - [ ]  Load data from json file
+- [x]  Savepoint Service
+  - [x]  Store data into json file
+  - [x]  Load data from json file
 
 
 - [ ] Error handling
