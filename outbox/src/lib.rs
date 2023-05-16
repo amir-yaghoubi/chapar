@@ -2,7 +2,7 @@ use sqlx::mysql::{MySqlPool, MySqlPoolOptions};
 use time::PrimitiveDateTime;
 
 pub mod errors;
-pub use errors::Error;
+pub use errors::OutboxError;
 
 pub struct OutboxService {
     pool: MySqlPool,
@@ -18,12 +18,11 @@ pub struct OutboxEvent {
 }
 
 impl OutboxService {
-    pub async fn new(url: &str, max_connections: u32) -> Result<Self, Error> {
+    pub async fn new(url: &str, max_connections: u32) -> Result<Self, OutboxError> {
         let pool = MySqlPoolOptions::new()
             .max_connections(max_connections)
             .connect(url)
-            .await
-            .map_err(|_| Error::ConnectionError)?;
+            .await?;
 
         Ok(OutboxService { pool })
     }
@@ -32,14 +31,10 @@ impl OutboxService {
         &self,
         last_id: u32,
         limit: Option<u32>,
-    ) -> Result<Vec<OutboxEvent>, Error> {
+    ) -> Result<Vec<OutboxEvent>, OutboxError> {
         let limit = limit.unwrap_or(100);
 
-        let mut conn = self
-            .pool
-            .acquire()
-            .await
-            .map_err(|_| Error::ConnectionError)?;
+        let mut conn = self.pool.acquire().await?;
 
         let events = sqlx::query_as::<_, OutboxEvent>(
             "SELECT * FROM outbox_events WHERE id > ? AND id <= ? ORDER BY id",
@@ -47,11 +42,7 @@ impl OutboxService {
         .bind(last_id)
         .bind(last_id + limit)
         .fetch_all(conn.as_mut())
-        .await
-        .map_err(|e| {
-            println!("{}", e);
-            Error::ConnectionError
-        })?;
+        .await?;
 
         Ok(events)
     }

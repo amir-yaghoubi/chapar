@@ -24,7 +24,6 @@ async fn main() {
         .unwrap();
 
     let conf = envy::from_env::<ChaparConfig>().unwrap();
-    println!("{:?}", conf);
 
     let outbox_svc = OutboxService::new(conf.mysql_address.as_str(), conf.mysql_max_connections)
         .await

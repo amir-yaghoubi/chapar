@@ -9,3 +9,4 @@ edition = "2021"
 rdkafka = { version = "0.30", features = ["cmake-build"] }
 tokio = { version = "1", features = ["full"] }
 futures = "0.3.28"
+thiserror = "1.0"

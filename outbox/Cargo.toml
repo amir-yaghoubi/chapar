@@ -9,3 +9,4 @@ edition = "2021"
 sqlx = { version = "^0.6", features = [ "runtime-tokio-rustls", "mysql", "macros", "time" ] }
 tokio = { version = "1", features = ["full"] }
 time = "0.3.20"
+thiserror = "1.0"

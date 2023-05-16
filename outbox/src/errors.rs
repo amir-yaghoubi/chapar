@@ -1,14 +1,7 @@
-use core::fmt;
+use thiserror::Error;
 
-#[derive(Debug)]
-pub enum Error {
-    ConnectionError,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::ConnectionError => write!(f, "Database connection error"),
-        }
-    }
+#[derive(Error, Debug)]
+pub enum OutboxError {
+    #[error("database error: {0}")]
+    DatabaseError(#[from] sqlx::error::Error),
 }
