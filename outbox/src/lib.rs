@@ -33,31 +33,26 @@ impl OutboxService {
         last_id: u32,
         limit: Option<u32>,
     ) -> Result<Vec<OutboxEvent>, Error> {
+        let limit = limit.unwrap_or(100);
+
         let mut conn = self
             .pool
             .acquire()
             .await
             .map_err(|_| Error::ConnectionError)?;
 
-        let events =
-            sqlx::query_as::<_, OutboxEvent>("SELECT * FROM outbox_events WHERE id > ? LIMIT ?")
-                .bind(last_id)
-                .bind(limit.unwrap_or_else(|| 100))
-                .fetch_all(conn.as_mut())
-                .await
-                .map_err(|e| {
-                    println!("{}", e);
-                    Error::ConnectionError
-                })?;
+        let events = sqlx::query_as::<_, OutboxEvent>(
+            "SELECT * FROM outbox_events WHERE id > ? AND id <= ? ORDER BY id",
+        )
+        .bind(last_id)
+        .bind(last_id + limit)
+        .fetch_all(conn.as_mut())
+        .await
+        .map_err(|e| {
+            println!("{}", e);
+            Error::ConnectionError
+        })?;
 
         Ok(events)
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn it_works() {}
-// }

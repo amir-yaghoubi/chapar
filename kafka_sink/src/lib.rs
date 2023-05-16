@@ -4,7 +4,7 @@ use rdkafka::{
     util::Timeout,
     ClientConfig,
 };
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 mod errors;
 pub use errors::KafkaError;
@@ -45,8 +45,6 @@ impl KafkaSinkService {
             return Ok(());
         }
 
-        let now = Instant::now();
-
         self.producer.begin_transaction().map_err(|e| {
             println!("cannot open transaction {:?}", e);
             KafkaError::ConnectionError
@@ -69,8 +67,6 @@ impl KafkaSinkService {
                 println!("cannot commit transaction {:?}", e);
                 KafkaError::ConnectionError
             })?;
-
-        println!("kafka wirte: {}ms", now.elapsed().as_millis());
 
         Ok(())
     }
