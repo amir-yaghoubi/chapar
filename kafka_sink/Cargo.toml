@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+outbox = { path = "../outbox" }
 rdkafka = { version = "0.30", features = ["cmake-build"] }
 tokio = { version = "1", features = ["full"] }
 futures = "0.3.28"

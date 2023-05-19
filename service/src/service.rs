@@ -1,4 +1,4 @@
-use kafka_sink::{KafkaRecord, KafkaSinkService};
+use kafka_sink::KafkaSinkService;
 use outbox_mysql::OutboxService;
 use savepoint::SavePointService;
 use std::time::Duration;
@@ -40,7 +40,7 @@ impl ChaparService {
         // Ok(())
     }
 
-    async fn process_new_events(&self) -> Result<usize, String> {
+    async fn process_new_events(&self) -> Result<(), String> {
         let last_id = self.savepoint_svc.load().await.unwrap();
 
         let events = self
@@ -51,8 +51,11 @@ impl ChaparService {
 
         if events.len() == 0 {
             info!("no new events detected, last id: {}", last_id);
-            return Ok(events.len());
+            return Ok(());
         }
+
+        // since we check for length, unwrap is safe here
+        let last_event_id = events.last().unwrap().id;
 
         info!(
             "received new events, count: {}, last id: {}",
@@ -60,30 +63,15 @@ impl ChaparService {
             events.last().unwrap().id
         );
 
-        let kafka_events = events
-            .iter()
-            .map(|event| KafkaRecord {
-                topic: event.topic.clone(),
-                key: event.key.clone(),
-                payload: event.payload.clone(),
-            })
-            .collect();
-
         self.kafka_sink_svc
-            .publish_events(kafka_events)
+            .publish_events(events)
             .await
             .map_err(|_| "cannot publish kafka events")?;
 
-        self.savepoint_svc
-            .save(events.last().unwrap().id)
-            .await
-            .unwrap();
+        self.savepoint_svc.save(last_event_id).await.unwrap();
 
-        info!(
-            "published events into kafka, last id: {}",
-            events.last().unwrap().id
-        );
+        info!("published events into kafka, last id: {}", last_event_id,);
 
-        Ok(events.len())
+        Ok(())
     }
 }

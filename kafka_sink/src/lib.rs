@@ -1,4 +1,5 @@
 use futures::future::join_all;
+use outbox::OutboxEvent;
 use rdkafka::{
     producer::{FutureProducer, FutureRecord, Producer},
     util::Timeout,
@@ -11,12 +12,6 @@ pub use errors::SynkError;
 
 pub struct KafkaSinkService {
     producer: FutureProducer,
-}
-
-pub struct KafkaRecord {
-    pub topic: String,
-    pub key: String,
-    pub payload: String,
 }
 
 impl KafkaSinkService {
@@ -34,18 +29,18 @@ impl KafkaSinkService {
         })
     }
 
-    pub async fn publish_events(&self, records: Vec<KafkaRecord>) -> Result<(), SynkError> {
-        if records.len() == 0 {
+    pub async fn publish_events(&self, events: Vec<OutboxEvent>) -> Result<(), SynkError> {
+        if events.len() == 0 {
             return Ok(());
         }
 
         self.producer.begin_transaction()?;
-
-        let tasks = records.iter().map(|record| {
+        let tasks = events.iter().map(|event| {
             self.producer.send(
-                FutureRecord::to(record.topic.as_str())
-                    .payload(record.payload.as_str())
-                    .key(record.key.as_str()),
+                FutureRecord::to(event.topic.as_str())
+                    .key(event.key.as_str())
+                    .payload(event.payload.as_str())
+                    .timestamp(event.created_at.assume_utc().unix_timestamp()),
                 Timeout::Never,
             )
         });
