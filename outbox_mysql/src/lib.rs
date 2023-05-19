@@ -22,11 +22,12 @@ impl OutboxService {
     ) -> Result<Self, OutboxError> {
         let query = format!(
             "SELECT 
-                `{}` as `id`, `{}` as `topic`, `{}` as `key`, `{}` as `payload`, `{}` as `created_at`
+                `{}` as `id`, `{}` as `topic`,
+                `{}` as `key`, `{}` as `payload`,
+                `{}` as `created_at`
             FROM `{}`
             WHERE `id` > ? AND `id` <= ?
             ORDER BY `id`;",
-
             table_config.id_column_name,
             table_config.topic_column_name,
             table_config.key_column_name,

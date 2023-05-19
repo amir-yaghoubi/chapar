@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.github/
+
+target/
+
+README.md
+
+*.db
+
+docker-compose.yaml
+
+Dockerfile
