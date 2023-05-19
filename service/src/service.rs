@@ -1,5 +1,5 @@
 use kafka_sink::{KafkaRecord, KafkaSinkService};
-use outbox::OutboxService;
+use outbox_mysql::OutboxService;
 use savepoint::SavePointService;
 use std::time::Duration;
 use tokio::time::interval;

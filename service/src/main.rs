@@ -5,7 +5,7 @@ use simple_logger::SimpleLogger;
 use std::time::Duration;
 #[macro_use]
 extern crate log;
-use outbox::OutboxService;
+use outbox_mysql::OutboxService;
 use savepoint::SavePointService;
 use service::ChaparService;
 
@@ -25,10 +25,14 @@ async fn main() {
 
     let conf = envy::from_env::<ChaparConfig>().unwrap();
 
-    let outbox_svc = OutboxService::new(conf.mysql_address.as_str(), conf.mysql_max_connections)
-        .await
-        .map_err(|e| e.to_string())
-        .unwrap();
+    let outbox_svc = OutboxService::new(
+        conf.table_config,
+        conf.mysql_address.as_str(),
+        conf.mysql_max_connections,
+    )
+    .await
+    .map_err(|e| e.to_string())
+    .unwrap();
 
     info!("outbox mysql service initialized");
 

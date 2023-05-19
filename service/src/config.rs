@@ -43,4 +43,7 @@ pub struct ChaparConfig {
 
     #[serde(default = "default_savepoint_path")]
     pub savepoint_path: String,
+
+    #[serde(flatten)]
+    pub table_config: outbox_mysql::OutboxTableConfig,
 }

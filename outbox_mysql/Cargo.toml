@@ -1,17 +1,13 @@
 [package]
-name = "service"
+name = "outbox_mysql"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+outbox = { path = "../outbox" }
+sqlx = { version = "^0.6", features = [ "runtime-tokio-rustls", "mysql", "macros", "time" ] }
 tokio = { version = "1", features = ["full"] }
-outbox_mysql = { path = "../outbox_mysql" }
-kafka_sink = { path = "../kafka_sink" }
-savepoint = { path = "../savepoint" }
+thiserror = "1.0"
 serde = "1.0"
-envy = "0.4"
-dotenv = "0.15"
-log = "0.4"
-simple_logger = "4.1.0"

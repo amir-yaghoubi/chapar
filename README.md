@@ -8,12 +8,12 @@
   - [x]  Load data from json file
 
 
-- [ ] Error handling
-  - [ ] Kafka Service
-  - [ ] Outbox Service
-  - [ ] Savepoint Service
+- [x] Error handling
+  - [x] Kafka Service
+  - [x] Outbox Service
+  - [x] Savepoint Service
   - [ ] Chapar Service
 
 - [ ] Dockerfile
 - [ ] CI/CD
-- [ ] Configuration and env paths
+- [x] Configuration and env paths

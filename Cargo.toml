@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "outbox_mysql",
     "outbox",
     "kafka_sink",
     "savepoint",
