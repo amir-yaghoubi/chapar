@@ -1,10 +1,12 @@
-use config::ChaparConfig;
 use dotenv::dotenv;
 use kafka_sink::KafkaSinkService;
 use simple_logger::SimpleLogger;
 use std::time::Duration;
+use tokio::signal;
+use tokio::sync::mpsc;
 #[macro_use]
 extern crate log;
+use config::ChaparConfig;
 use outbox_mysql::OutboxService;
 use savepoint::SavePointService;
 use service::ChaparService;
@@ -51,7 +53,21 @@ async fn main() {
         Duration::from_millis(conf.tick_interval),
         conf.batch_size,
     );
-    chapar_svc.run().await.unwrap();
 
-    info!("shutdown")
+    let (sender, receiver) = mpsc::channel(1);
+
+    let handler = tokio::spawn(async move {
+        println!("hi");
+        chapar_svc.run(receiver).await.unwrap();
+        println!("bye");
+    });
+
+    signal::ctrl_c().await.unwrap();
+
+    info!("shutting down server");
+
+    sender.send(()).await.unwrap();
+    handler.await.unwrap();
+
+    info!("server shutted down gracefully");
 }

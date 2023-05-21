@@ -2,6 +2,8 @@ use kafka_sink::KafkaSinkService;
 use outbox_mysql::OutboxService;
 use savepoint::SavePointService;
 use std::time::Duration;
+use tokio::select;
+use tokio::sync::mpsc::Receiver;
 use tokio::time::interval;
 
 pub struct ChaparService {
@@ -29,15 +31,20 @@ impl ChaparService {
         }
     }
 
-    pub async fn run(&self) -> Result<(), String> {
+    pub async fn run(&self, mut shutdown: Receiver<()>) -> Result<(), String> {
         let mut ticker = interval(self.tick_interval);
 
         loop {
-            ticker.tick().await;
-            self.process_new_events().await?;
+            select! {
+                _ = shutdown.recv() => {
+                    println!("shutdown received");
+                    return Ok(())
+                },
+                _ = ticker.tick() => {
+                     self.process_new_events().await?;
+                },
+            }
         }
-
-        // Ok(())
     }
 
     async fn process_new_events(&self) -> Result<(), String> {
