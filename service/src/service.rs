@@ -56,7 +56,7 @@ impl ChaparService {
             .await
             .map_err(|e| e.to_string())?;
 
-        if events.len() == 0 {
+        if events.is_empty() {
             info!("no new events detected, last id: {}", last_id);
             return Ok(());
         }
