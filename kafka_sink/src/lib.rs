@@ -30,7 +30,7 @@ impl KafkaSinkService {
     }
 
     pub async fn publish_events(&self, events: Vec<OutboxEvent>) -> Result<(), SynkError> {
-        if events.len() == 0 {
+        if events.is_empty() {
             return Ok(());
         }
 
